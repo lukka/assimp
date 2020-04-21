@@ -7,40 +7,20 @@ on:
     branches: [ master ]
 
 jobs:
-  linux:
-    runs-on: ubuntu-latest
-    
+  job:
+    name: ${{ matrix.os }}-build-and-test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
     - uses: actions/checkout@v2
-    - name: configure
-      run: cmake CMakeLists.txt
+    - uses: lukka/get-cmake@latest
     - name: build
-      run: cmake --build .
+      uses: lukka/run-cmake@v2
+      with:
+        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
     - name: test
       run: cd bin && ./unit
-  
-  mac:
-    runs-on: macos-latest
-    
-    steps:
-    - uses: actions/checkout@v2
-    - name: configure
-      run: cmake CMakeLists.txt
-    - name: build
-      run: cmake --build .
-    - name: test
-      run: cd bin && ./unit
-
-  windows:
-    runs-on: windows-latest
-    
-    steps:
-    - uses: actions/checkout@v2
-    - name: configure
-      run: cmake CMakeLists.txt
-    - name: build
-      run: cmake --build . --config Release
-    - name: test
-      run: | 
-        cd bin\Release
-        .\unit
